@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Bé Tập Tô Màu Phân Số</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-sky-50 min-h-screen flex items-center justify-center">
+
+<div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-xl text-center space-y-6">
+
+    <h1 class="text-3xl font-black text-blue-700">
+        BÉ TẬP TÔ MÀU PHÂN SỐ
+    </h1>
+
+    <!-- PHÂN SỐ -->
+    <div class="flex justify-center">
+        <div class="border-4 border-blue-500 rounded-2xl w-24 h-32 flex flex-col justify-center items-center bg-blue-50">
+            <div id="num" class="text-5xl font-black border-b-4 border-blue-600 w-full text-center">1</div>
+            <div id="den" class="text-5xl font-black">2</div>
+        </div>
+    </div>
+
+    <p class="text-lg font-bold text-slate-600">
+        👉 Hãy tô <span class="text-blue-600">đúng số phần</span> của hình
+    </p>
+
+    <!-- HÌNH CHỮ NHẬT -->
+    <div id="rect"
+         class="flex w-full h-40 border-4 border-blue-600 rounded-xl overflow-hidden bg-white">
+    </div>
+
+    <!-- NÚT -->
+    <div id="controls"></div>
+
+</div>
+
+<script>
+/* ========= PHÂN SỐ CỐ ĐỊNH ========= */
+const FRACTIONS = [
+    { num: 1, den: 2 },
+    { num: 1, den: 3 },
+    { num: 1, den: 5 },
+    { num: 1, den: 6 }
+];
+
+function shuffle(arr) {
+    return arr.sort(() => Math.random() - 0.5);
+}
+
+let questions = shuffle([...FRACTIONS]);
+let index = 0;
+let selected = [];
+
+/* ========= LOAD CÂU ========= */
+function loadQuestion() {
+    const f = questions[index];
+
+    document.getElementById("num").innerText = f.num;
+    document.getElementById("den").innerText = f.den;
+
+    selected = new Array(f.den).fill(false);
+
+    const rect = document.getElementById("rect");
+    rect.innerHTML = "";
+
+    for (let i = 0; i < f.den; i++) {
+        const part = document.createElement("div");
+        part.style.flex = "1";
+        part.style.height = "100%";
+        part.style.cursor = "pointer";
+        part.style.borderRight = i === f.den - 1 ? "none" : "2px solid #2563eb";
+        part.style.transition = "0.2s";
+        part.style.backgroundColor = "white";
+
+        part.onclick = () => togglePart(i, part);
+
+        rect.appendChild(part);
+    }
+
+    renderControls("check");
+}
+
+/* ========= TÔ / BỎ TÔ ========= */
+function togglePart(i, el) {
+    selected[i] = !selected[i];
+    el.style.backgroundColor = selected[i] ? "#facc15" : "white";
+}
+
+/* ========= KIỂM TRA ========= */
+function checkAnswer() {
+    const f = questions[index];
+    const count = selected.filter(x => x).length;
+
+    if (count === f.num) {
+        renderControls("correct");
+    } else {
+        renderControls("wrong");
+    }
+}
+
+/* ========= CÂU TIẾP ========= */
+function nextQuestion() {
+    index++;
+    if (index >= questions.length) {
+        questions = shuffle([...FRACTIONS]);
+        index = 0;
+    }
+    loadQuestion();
+}
+
+/* ========= NÚT ========= */
+function renderControls(type) {
+    const c = document.getElementById("controls");
+    c.innerHTML = "";
+
+    if (type === "check") {
+        c.innerHTML = `
+            <button onclick="checkAnswer()"
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-4 rounded-2xl text-xl">
+                KIỂM TRA
+            </button>
+        `;
+    }
+
+    if (type === "correct") {
+        c.innerHTML = `
+            <div class="text-green-600 font-black text-2xl mb-4">
+                🎉 ĐÚNG RỒI!
+            </div>
+            <button onclick="nextQuestion()"
+                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-black py-4 rounded-2xl text-xl">
+                CÂU TIẾP
+            </button>
+        `;
+    }
+
+    if (type === "wrong") {
+        c.innerHTML = `
+            <div class="text-red-600 font-black text-xl mb-4">
+                ❌ CHƯA ĐÚNG, THỬ LẠI NHÉ!
+            </div>
+            <button onclick="loadQuestion()"
+                class="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-4 rounded-2xl text-xl">
+                TÔ LẠI
+            </button>
+        `;
+    }
+}
+
+/* ========= KHỞI TẠO ========= */
+loadQuestion();
+</script>
+
+</body>
+</html>
